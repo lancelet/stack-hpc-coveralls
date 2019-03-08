@@ -19,6 +19,7 @@ import           Data.Version
 import           Control.Applicative ((<$>), (<*>))
 #endif
 import           Text.ParserCombinators.ReadP
+import           System.Environment  (getEnvironment)
 import           System.Process      (readProcess)
 
 import           SHC.Types
@@ -31,15 +32,20 @@ git :: [String] -> IO String
 git = readP "git"
 
 -- | Get information about the Git repo in the current directory.
-getGitInfo :: IO GitInfo
-getGitInfo = GitInfo <$> headRef <*> branchName <*> getRemotes
+getGitInfo :: String -> IO GitInfo
+getGitInfo serviceName = GitInfo <$> headRef <*> branchName <*> getRemotes
     where headRef = Commit <$> git ["rev-parse", "HEAD"]
                            <*> git ["log", "-1", "--pretty=%aN"]
                            <*> git ["log", "-1", "--pretty=%aE"]
                            <*> git ["log", "-1", "--pretty=%cN"]
                            <*> git ["log", "-1", "--pretty=%cE"]
                            <*> git ["log", "-1", "--pretty=%s"]
-          branchName = git ["rev-parse", "--abbrev-ref", "HEAD"]
+          branchName = if serviceName == "buildkite"
+            then do
+              env <- getEnvironment
+              maybe gitBranchName pure $ lookup "BUILDKITE_BRANCH" env
+            else gitBranchName
+          gitBranchName = git ["rev-parse", "--abbrev-ref", "HEAD"]
 
 getRemotes :: IO [Remote]
 getRemotes = nubBy ((==) `on` name) . parseRemotes <$> git ["remote", "-v"]

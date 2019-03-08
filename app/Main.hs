@@ -63,7 +63,7 @@ getConfig args = do
            <*> pure sn
            <*> pure jId
            <*> pure (args `getArg` longOption "repo-token")
-           <*> getGitInfo
+           <*> getGitInfo sn
            <*> defaultOr args (longOption "hpc-dir") (getHpcDir pn)
            <*> pure (args `getArg` longOption "mix-dir")
            <*> pure (if args `isPresent` longOption "partial-coverage"
