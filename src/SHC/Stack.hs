@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 -- |
 -- Module:      SHC.Stack
 -- Copyright:   (c) 2014-2015 Guillaume Nargeot, (c) 2015-2016 Felipe Lessa
@@ -15,8 +16,10 @@ import Data.Version
 #if __GLASGOW_HASKELL__ < 710
 import Control.Applicative ((<$>), (<*>))
 #endif
+import Control.Exception (SomeException, handle)
 import Control.Monad (forM, guard)
 import Data.List (elem)
+import Data.Maybe (catMaybes)
 import System.Directory (makeRelativeToCurrentDirectory)
 import System.FilePath ((</>), equalFilePath, splitPath)
 
@@ -54,22 +57,25 @@ getStackQuery = (Y.decodeEither' . BS8.pack <$> stack ["query"]) >>= either err 
   where err = fail . (++) "getStackQuery: Couldn't decode the result of 'stack query' as YAML: " . show
 
 -- | Get the key that GHC uses for the given package.
-getProjectKey :: String -> IO String
-getProjectKey pkgName = stack ["exec", "--", "ghc-pkg", "field", pkgName, "key", "--simple-output"]
+getProjectKey :: String -> IO (Maybe String)
+getProjectKey pkgName =
+  handle (\(_ :: SomeException) -> pure Nothing) $ Just <$> stack
+    ["exec", "--", "ghc-pkg", "field", pkgName, "key", "--simple-output"]
 
 -- | Get the Stack info needed to find project files.
 getStackProjects :: IO [StackProject]
 getStackProjects = do
   sq <- getStackQuery
   baseMixDir <- getBaseMixDir
-  forM (stackQueryLocals sq) $ \(pkgName, filepath) -> do
+  fmap catMaybes . forM (stackQueryLocals sq) $ \(pkgName, filepath) -> do
     relfp <- makeRelativeToCurrentDirectory filepath
     let mpath = guard (not $ relfp `equalFilePath` ".") >> Just relfp
-    key <- if ".stack-work/" `elem` splitPath relfp
-             then return pkgName
+    mkey <- if ".stack-work/" `elem` splitPath relfp
+             then return $ Just pkgName
              else getProjectKey pkgName
-    return
-      StackProject
+    return $ case mkey of
+      Nothing -> Nothing
+      Just key -> Just StackProject
         { stackProjectName   = pkgName
         , stackProjectPath   = mpath
         , stackProjectKey    = key
