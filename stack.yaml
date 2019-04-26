@@ -17,6 +17,10 @@ flags: {}
 # Extra package databases containing global packages
 extra-package-dbs: []
 
+nix:
+  packages:
+    - zlib
+
 # Control whether we use the GHC we find on the path
 # system-ghc: true
 
