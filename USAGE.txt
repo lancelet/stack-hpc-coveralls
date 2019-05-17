@@ -2,13 +2,14 @@ Usage:
     shc [options] <package-name> <suite-name>...
 
 Options:
-    -h --help             show this help
-    --hpc-dir=<path>      base HPC directory
-    --mix-dir=<path>      directory in which HPC stores mix files
-    --repo-token=<token>  Coveralls repo token
-    --partial-coverage    allow partial line coverage
-    --dont-send           display Coveralls JSON instead of sending it
-    --fetch-coverage      fetch and display Coveralls's overall coverage
+    -h --help                          show this help
+    --hpc-dir=<path>                   base HPC directory
+    --mix-dir=<path>                   directory in which HPC stores mix files
+    --exclude-dirs=<path>[;<path>...]  a list of path patterns to exclude
+    --repo-token=<token>               Coveralls repo token
+    --partial-coverage                 allow partial line coverage
+    --dont-send                        display Coveralls JSON instead of sending it
+    --fetch-coverage                   fetch and display Coveralls's overall coverage
 
 Multiple packages:
      Use "combined" and "all" as package-name and suite-name resp. in

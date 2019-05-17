@@ -95,8 +95,7 @@ readCoverageData conf suite = do
                     let fp = normalise $ maybe id (</>) (stackProjectPath stackProj) origFp
                     source <- BS.readFile fp
                     return (fp, source, mix, tixs)
-                  sourceDirFilter = not . matchAny excludeDirPatterns . fst4
-                  excludeDirPatterns = []  -- XXX: for now
+                  sourceDirFilter = not . matchAny (excludeDirPatterns conf) . fst4
 
 toCoverallsJson :: Config -> LixConverter -> TestSuiteCoverageData -> Value
 toCoverallsJson conf converter testSuiteCoverageData =
