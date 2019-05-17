@@ -37,17 +37,18 @@ data PostResult = PostSuccess String
                 deriving (Show)
 
 data Config = Config
-    { packageName   :: String
-    , suitesName    :: [String]
-    , serviceName   :: String
-    , jobId         :: String
-    , repoToken     :: Maybe String
-    , gitInfo       :: GitInfo
-    , hpcDir        :: FilePath
-    , mixDir        :: Maybe FilePath
-    , conversion    :: ConversionType
-    , stackProjects :: [StackProject]
-    , fetchCoverage :: Bool
+    { packageName        :: String
+    , suitesName         :: [String]
+    , serviceName        :: String
+    , jobId              :: String
+    , repoToken          :: Maybe String
+    , gitInfo            :: GitInfo
+    , hpcDir             :: FilePath
+    , mixDir             :: Maybe FilePath
+    , conversion         :: ConversionType
+    , stackProjects      :: [StackProject]
+    , excludeDirPatterns :: [String]
+    , fetchCoverage      :: Bool
     }
 
 data GitInfo = GitInfo

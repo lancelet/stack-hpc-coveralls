@@ -7,6 +7,7 @@ import           Control.Monad         (unless, when)
 import           Data.Aeson            (encode)
 import qualified Data.ByteString.Lazy  as BSL
 import           Data.List             (find)
+import           Data.List.Split       (splitOn)
 import           Data.Maybe            (isJust)
 #if __GLASGOW_HASKELL__ < 710
 import           Control.Applicative   (pure, (<$>), (<*>))
@@ -70,6 +71,8 @@ getConfig args = do
                         then PartialLines
                         else FullLines)
            <*> getStackProjects
+           <*> pure (maybe [] (splitOn ";")
+                      (args `getArg` longOption "exclude-dirs"))
            <*> pure (args `isPresent` longOption "fetch-coverage")
 
 main :: IO ()
